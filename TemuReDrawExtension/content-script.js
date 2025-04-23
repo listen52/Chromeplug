@@ -68,6 +68,7 @@ function createDialogElement(imageData) {
     bottom: 0;
     background: rgba(0,0,0,0.5);
     z-index: 999998;
+    cursor: pointer;
   `;
 
   // 添加到页面
@@ -77,6 +78,12 @@ function createDialogElement(imageData) {
   // 绑定事件
   const cancelBtn = dialog.querySelector('#cancelBtn');
   const saveBtn = dialog.querySelector('#saveBtn');
+
+  // 点击遮罩层关闭弹窗
+  overlay.addEventListener('click', () => {
+    overlay.remove();
+    dialog.remove();
+  });
 
   cancelBtn.addEventListener('click', () => {
     overlay.remove();
@@ -246,4 +253,13 @@ const observer = new MutationObserver((mutations) => {
 observer.observe(document.body, {
   childList: true,
   subtree: true
+});
+
+// 添加全局点击事件监听器
+document.addEventListener('click', (event) => {
+    const popup = document.getElementById('yourPopupId'); // 替换为你的弹窗实际ID
+    if (popup && !popup.contains(event.target)) {
+        // 如果点击发生在弹窗外部，则关闭弹窗
+        popup.style.display = 'none';
+    }
 });
