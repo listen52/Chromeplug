@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Temu图片下载工具</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>图片下载</h1>
+    
+    <!-- 图片预览区域 -->
+    <div class="preview-container">
+      <h2>图片预览</h2>
+      <div class="image-preview">
+        <img id="previewImage" src="" alt="图片预览">
+      </div>
+      <div id="imageInfo" class="image-info"></div>
+    </div>
+
+    <!-- 保存信息表单 -->
+    <form id="saveForm">
+      <!-- 形状选择 -->
+      <div class="form-group">
+        <label for="shapeType">形状类型:</label>
+        <select id="shapeType" name="shapeType">
+          <option value="square">方形</option>
+          <option value="circle">圆形</option>
+          <option value="rectangle">长方形</option>
+        </select>
+      </div>
+
+      <!-- 时间信息 (自动填充) -->
+      <div class="form-group">
+        <label for="timestamp">创建时间:</label>
+        <input type="text" id="timestamp" readonly>
+      </div>
+
+      <!-- 原网址信息 (自动填充) -->
+      <div class="form-group">
+        <label for="sourceUrl">原始网址:</label>
+        <input type="text" id="sourceUrl" readonly>
+      </div>
+
+      <!-- 备注信息 -->
+      <div class="form-group">
+        <label for="notes">备注:</label>
+        <textarea id="notes" name="notes" rows="2"></textarea>
+      </div>
+
+      <!-- 按钮区域 -->
+      <div class="buttons">
+        <button type="button" id="cancelBtn">取消</button>
+        <button type="button" id="saveBtn">保存</button>
+      </div>
+    </form>
+
+    <!-- 状态信息 -->
+    <div id="statusMessage" class="status-message"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
