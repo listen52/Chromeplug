@@ -75,41 +75,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     return true;
                 }
 
-                // 生成类似 UUID 的字符串
+                // 生成UUID
                 const uuid = generateUUID();
 
-                // 直接保存JSON字符串
-                const jsonString = JSON.stringify(jsonData, null, 2);
-                const jsonBytes = new TextEncoder().encode(jsonString);
-                const jsonDataUrl = `data:application/json;base64,${btoa(String.fromCharCode(...jsonBytes))}`;
-
-                // 首先保存JSON文件，使用类似 UUID 的字符串作为文件名
-                chrome.downloads.download({
-                    url: jsonDataUrl,
-                    filename: `${uuid}.json`,
-                    saveAs: false
-                }, (jsonDownloadId) => {
-                    if (chrome.runtime.lastError) {
-                        console.error('保存JSON失败:', chrome.runtime.lastError);
-                        sendResponse({ success: false, error: chrome.runtime.lastError.message });
-                        return;
-                    }
-
-                    // JSON保存成功后保存图片，使用相同的类似 UUID 的字符串作为文件名
-                    chrome.downloads.download({
-                        url: imageData.url,
-                        filename: `${uuid}${imageData.extension}`,
-                        saveAs: false
-                    }, (imageDownloadId) => {
-                        if (chrome.runtime.lastError) {
-                            console.error('保存图片失败:', chrome.runtime.lastError);
-                            sendResponse({ success: false, error: chrome.runtime.lastError.message });
-                        } else {
-                            sendResponse({ success: true });
-                        }
-                    });
-                });
+                // 创建FormData对象
+                const formData = new FormData();
                 
+                // 添加图片数据
+                fetch(imageData.url)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        // 使用UUID作为图片名称
+                        formData.append('image', blob, `${uuid}${imageData.extension}`);
+                        
+                        // 添加JSON数据中的每个字段
+                        for (const [key, value] of Object.entries(jsonData)) {
+                            formData.append(key, value);
+                        }
+
+                        // 发送POST请求
+                        return fetch('http://127.0.0.1:5000/gift/save', {
+                            method: 'POST',
+                            body: formData
+                        });
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('网络响应不正常');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        sendResponse({ success: true, data: data });
+                    })
+                    .catch(error => {
+                        console.error('请求失败:', error);
+                        sendResponse({ success: false, error: error.message });
+                    });
+
                 return true; // 保持消息通道打开以进行异步响应
             } catch (error) {
                 console.error('处理保存请求失败:', error);
